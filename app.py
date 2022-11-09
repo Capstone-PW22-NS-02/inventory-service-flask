@@ -1,23 +1,38 @@
 from flask import Flask, request, jsonify
-
+from flask_cors import CORS, cross_origin
+from flask_pymongo import pymongo
+import urllib.parse
 app = Flask(__name__)
+CORS(app)
 
 
-@app.route('/getProducts', methods=['POST', 'GET'])
-def index():
-    if(request.method == 'GET'):
-        products = [{
-            "name": "Apple Macbook Pro",
-            "description": "M1 chip, Retina display, 120Hz refresh rate",
-            "price": 90000.0,
-            "rating": 5
-        }, {
-            "name": "Asus Vivobook",
-            "description": "8GB RAM, 256GB SSD + 1TB HDD",
-            "price": 70000.0,
-            "rating": 5
-        }, ]
-        return jsonify({'products': products})
+CONNECTION_STRING = 'mongodb+srv://suryamn:'+urllib.parse.quote_plus("qwerty@1234")+'@capstone.9nomawa.mongodb.net/?retryWrites=true&w=majority'
+client = pymongo.MongoClient(CONNECTION_STRING)
+db = client.get_database('test')
+product_collection = pymongo.collection.Collection(db,'products')
+
+
+
+@app.route('/getProducts', methods=['GET'])
+@cross_origin()
+def getProducts():
+
+    products = product_collection.find({},{'_id':0})
+    products = [product for product in products]
+    return jsonify(products)
+      
+
+@app.route('/addProduct', methods=['POST'])
+@cross_origin()
+def addProduct():
+
+    try:
+        product = request.get_json()
+        product_collection.insert_one(product)
+        return jsonify({'msg':'Product added'})
+
+    except Exception as e:
+        return jsonify({'msg':e})
 
 
 if __name__ == '__main__':
