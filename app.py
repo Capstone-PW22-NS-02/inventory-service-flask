@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from flask_pymongo import pymongo
 import urllib.parse
+from bson.objectid import ObjectId
+
 app = Flask(__name__)
 CORS(app)
 
@@ -25,6 +27,15 @@ def getProducts():
     # products = [product for product in products]
     return jsonify(p)
       
+
+@app.route('/getProduct/<id>', methods=['GET'])
+@cross_origin()
+def getProduct(id):
+
+    product = product_collection.find_one({"_id":ObjectId(id)})
+    product['_id'] = str(product['_id'])
+    return jsonify(product)
+
 
 @app.route('/addProduct', methods=['POST'])
 @cross_origin()
