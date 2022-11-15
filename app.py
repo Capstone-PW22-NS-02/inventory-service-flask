@@ -17,9 +17,13 @@ product_collection = pymongo.collection.Collection(db,'products')
 @cross_origin()
 def getProducts():
 
-    products = product_collection.find({},{'_id':0})
-    products = [product for product in products]
-    return jsonify(products)
+    products = product_collection.find({})
+    p = []
+    for product in products:
+        product['_id'] = str(product['_id'])
+        p.append(product)
+    # products = [product for product in products]
+    return jsonify(p)
       
 
 @app.route('/addProduct', methods=['POST'])
