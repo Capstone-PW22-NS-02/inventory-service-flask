@@ -50,5 +50,18 @@ def addProduct():
         return jsonify({'msg':e})
 
 
+@app.route('/addReview', methods=['POST'])
+@cross_origin()
+def addReview():
+
+    try:
+        product = request.get_json()
+        print(product)  
+        product_collection.update_one({'_id':ObjectId(product['_id'])}, {"$set": {'reviews':product['reviews']}}, upsert=False)
+        return jsonify({'msg':'Review added'})
+
+    except Exception as e:
+        return jsonify({'msg':e})
+
 if __name__ == '__main__':
     app.run(port=8001, debug=True)
